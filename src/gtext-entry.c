@@ -1,14 +1,18 @@
+#include <errno.h>
+#include <string.h>
 #include "gtext-app.h"
 #include "gtext-css.h"
 
 int main(int argc, char* argv[]) {
-    GtkApplication* app;
+    GTextApp* app;
     int status;
 
-    app = gtext_app_create();
-    gtext_app_load_css(app, gtext_css_len, gtext_css);
-    status = gtext_app_run(app, argc, argv);
-    gtext_app_destroy(app);
+    gtk_init(&argc, &argv);
+    gtext_css_init();
+
+    app = gtext_app_new();
+    status = g_application_run(G_APPLICATION(app), argc, argv);
+    g_object_unref(app);
 
     return status;
 }

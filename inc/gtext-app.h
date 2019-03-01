@@ -3,9 +3,9 @@
 
 #include <gtk/gtk.h>
 
-GtkApplication* gtext_app_create();
-void gtext_app_load_css(GtkApplication*, int, const char*);
-int gtext_app_run(GtkApplication*, int, char*[]);
-void gtext_app_destroy(GtkApplication*);
+#define GTEXT_APP_TYPE (gtext_app_get_type())
+G_DECLARE_FINAL_TYPE (GTextApp, gtext_app, GTEXT, APP, GtkApplication)
+
+GTextApp* gtext_app_new(void);
 
 #endif

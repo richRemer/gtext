@@ -5,20 +5,22 @@
 #include "gtext-res.h"
 #include "gtext-window.h"
 
-static const char* const GTEXT_APP_ID = "us.remer.gtext";
+struct _GTextApp {
+    GtkApplication parent;
+};
 
-static void startup(GApplication* app, gpointer data) {
-    const char* css = (const char*)data;
-    gtext_load_default_css(strlen(css), css);
-    free((void*)css);
+G_DEFINE_TYPE(GTextApp, gtext_app, GTK_TYPE_APPLICATION);
+
+static void gtext_app_init(GTextApp* app) {
+    // implements GApplication interface
 }
 
-static void activate(GApplication* app, gpointer data) {
+static void gtext_app_activate(GApplication* app) {
     GtkWidget* window = gtext_window_new(app);
-    gtk_widget_show_all(window);
+    gtk_window_present(GTK_WINDOW(window));
 }
 
-static void open(GApplication* app, GFile* files[], gint nfiles, gchar* hint, gpointer data) {
+static void gtext_app_open(GApplication* app, GFile* files[], gint nfiles, const gchar* hint) {
     g_print("open:\n");
 
     for (int i = 0; i < nfiles; i++) {
@@ -26,31 +28,14 @@ static void open(GApplication* app, GFile* files[], gint nfiles, gchar* hint, gp
     }
 }
 
-GtkApplication* gtext_app_create() {
-    GtkApplication* app;
-
-    app = gtk_application_new(GTEXT_APP_ID, G_APPLICATION_HANDLES_OPEN);
-    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-    g_signal_connect(app, "open", G_CALLBACK(open), NULL);
-
-    return app;
+static void gtext_app_class_init(GTextAppClass* class) {
+    G_APPLICATION_CLASS(class)->activate = gtext_app_activate;
+    G_APPLICATION_CLASS(class)->open = gtext_app_open;
 }
 
-void gtext_app_load_css(GtkApplication* app, int len, const char* css) {
-    char* data = malloc(len + 1);
-
-    // TODO: avoid segfault on ENOMEM above
-    memcpy(data, css, len);
-    data[len] = '\0';
-
-    // TODO: remove old handler; multiple handlers overwrite CSS data
-    g_signal_connect(app, "startup", G_CALLBACK(startup), data);
-}
-
-int gtext_app_run(GtkApplication* app, int argc, char* argv[]) {
-    return g_application_run(G_APPLICATION(app), argc, argv);
-}
-
-void gtext_app_destroy(GtkApplication* app) {
-    g_object_unref(app);
+GTextApp* gtext_app_new(void) {
+    return g_object_new(GTEXT_APP_TYPE,
+                        "application-id", "us.remer.gtext",
+                        "flags", G_APPLICATION_HANDLES_OPEN,
+                        NULL);
 }

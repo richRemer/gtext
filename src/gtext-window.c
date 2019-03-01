@@ -1,3 +1,4 @@
+#include "gtext-css.h"
 #include "gtext-res.h"
 #include "gtext-window.h"
 
@@ -13,7 +14,7 @@ GtkWidget* gtext_window_new(GtkApplication* app) {
     text_view = gtk_text_view_new();
     gtk_text_view_set_monospace(GTK_TEXT_VIEW(text_view), TRUE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
-    gtext_style_widget(text_view, "gtext-document");
+    gtext_css_style_widget(text_view, "gtext-document");
 
     scroll_view = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(scroll_view), text_view);
