@@ -36,5 +36,6 @@ static void gtext_app_win_class_init(GTextAppWinClass* class) {
 GTextAppWin* gtext_app_win_new(GTextApp* app) {
     return g_object_new(GTEXT_APP_WIN_TYPE,
         "application", app,
+        "show-menubar", FALSE,
         NULL);
 }

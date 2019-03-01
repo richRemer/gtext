@@ -46,8 +46,12 @@ static void gtext_app_init(GTextApp* app) {
 }
 
 static void gtext_app_startup(GApplication* app) {
+    GMenu* app_menu;
+
     // call parent implementation
     G_APPLICATION_CLASS(gtext_app_parent_class)->startup(app);
+
+    g_set_application_name("GText");
 
     g_action_map_add_action_entries(G_ACTION_MAP(app),
         actions, G_N_ELEMENTS(actions), app);
@@ -55,6 +59,11 @@ static void gtext_app_startup(GApplication* app) {
     gtk_application_set_accels_for_action(
         GTK_APPLICATION(app),
         "app.new", new_accels);
+
+    app_menu = g_menu_new();
+    g_menu_append(app_menu, "New", "app.new");
+    gtk_application_set_app_menu(GTK_APPLICATION(app), G_MENU_MODEL(app_menu));
+    g_object_unref(app_menu);
 
     // setup fallback icon for all app windows
     GList* app_icon = gtext_load_icon_list("accessories-text-editor");
