@@ -7,6 +7,6 @@ extern unsigned char gtext_css[];
 extern unsigned int gtext_css_len;
 
 void gtext_css_init();
-void gtext_css_style_widget(GtkWidget* widget, const char* css_class);
+void gtext_css_style_widget(GtkWidget*, const char*);
 
 #endif
