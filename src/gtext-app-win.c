@@ -7,6 +7,7 @@ struct _GTextAppWin {
     GtkWidget* layout;
     GtkWidget* viewport;
     GtkWidget* content;
+    GFile* file;
 };
 
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
@@ -38,4 +39,24 @@ GTextAppWin* gtext_app_win_new(GTextApp* app) {
         "application", app,
         "show-menubar", FALSE,
         NULL);
+}
+
+GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
+    GTextAppWin* window = gtext_app_win_new(app);
+    GtkTextBuffer* buffer;
+    char* contents;
+    gsize len;
+
+    if (g_file_load_contents(file, NULL, &contents, &len, NULL, NULL)) {
+        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->content));
+        gtk_text_buffer_set_text(buffer, contents, len);
+        window->file = file;
+        g_free(contents);
+    }
+
+    return window;
+}
+
+GFile* gtext_app_win_get_file(GTextAppWin* window) {
+    return window->file;
 }
