@@ -85,7 +85,7 @@ static void gtext_app_startup(GApplication* app) {
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save", save_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save_as", save_as_accels);
 
-    gtext_app_build_menu(GTK_APPLICATION(app));
+    gtext_app_build_menu(GTEXT_APP(app));
 
     // setup fallback icon for all app windows
     GList* app_icon = gtext_load_icon_list("accessories-text-editor");
