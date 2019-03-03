@@ -13,9 +13,11 @@ struct _GTextAppWin {
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
 static void save_activated(GSimpleAction*, GVariant*, gpointer);
+static void save_as_activated(GSimpleAction*, GVariant*, gpointer);
 
 static GActionEntry actions[] = {
-    {"save", save_activated, NULL, NULL, NULL}
+    {"save", save_activated, NULL, NULL, NULL},
+    {"save_as", save_as_activated, NULL, NULL, NULL}
 };
 
 static void gtext_app_win_init(GTextAppWin* window) {
@@ -81,8 +83,7 @@ static void save_activated(GSimpleAction* action, GVariant* param, gpointer data
     int len;
 
     if (NULL == (file = gtext_app_win_get_file(window))) {
-        g_printerr("file unknown\n");
-        return;
+        return save_as_activated(action, param, data);
     }
 
     if (NULL == (out = g_file_replace(file, NULL, FALSE, 0, NULL, NULL))) {
@@ -100,4 +101,24 @@ static void save_activated(GSimpleAction* action, GVariant* param, gpointer data
     g_output_stream_write(G_OUTPUT_STREAM(out), contents, len, NULL, NULL);
     g_output_stream_close(G_OUTPUT_STREAM(out), NULL, NULL);
     g_free(contents);
+}
+
+static void save_as_activated(GSimpleAction* action, GVariant* param, gpointer data) {
+    GTextAppWin* window = GTEXT_APP_WIN(data);
+    GtkWidget* dialog;
+    gint result;
+    GFile* file;
+
+    dialog = gtk_file_chooser_dialog_new(NULL, NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+        "_Cancel", GTK_RESPONSE_CANCEL,
+        "_Save Copy", GTK_RESPONSE_ACCEPT,
+        NULL);
+
+    if (GTK_RESPONSE_ACCEPT == gtk_dialog_run(GTK_DIALOG(dialog))) {
+        file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+        window->file = file;
+        save_activated(action, param, data);
+    }
+
+    gtk_widget_destroy(dialog);
 }

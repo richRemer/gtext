@@ -23,12 +23,14 @@ static void open_activated(GSimpleAction*, GVariant*, gpointer);
 static GActionEntry actions[] = {
     {"new", new_activated, NULL, NULL, NULL},
     {"open", open_activated, NULL, NULL, NULL},
-    {"save", NULL, NULL, NULL, NULL}
+    {"save", NULL, NULL, NULL, NULL},
+    {"save_as", NULL, NULL, NULL, NULL},
 };
 
 static const gchar* new_accels[2] = {"<Ctrl>N", NULL};
 static const gchar* open_accels[2] = {"<Ctrl>O", NULL};
 static const gchar* save_accels[2] = {"<Ctrl>S", NULL};
+static const gchar* save_as_accels[2] = {"<Ctrl><Shift>S", NULL};
 
 GTextApp* gtext_app_new(void) {
     return g_object_new(GTEXT_APP_TYPE,
@@ -81,6 +83,7 @@ static void gtext_app_startup(GApplication* app) {
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "app.new", new_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "app.open", open_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save", save_accels);
+    gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save_as", save_as_accels);
 
     gtext_app_build_menu(GTK_APPLICATION(app));
 
@@ -113,8 +116,9 @@ static void gtext_app_build_menu(GTextApp* app) {
     doc_menu = g_menu_new();
 
     g_menu_append(app_menu, "New", "app.new");
-    g_menu_append(app_menu, "Open", "app.open");
+    g_menu_append(app_menu, "Open...", "app.open");
     g_menu_append(doc_menu, "Save", "win.save");
+    g_menu_append(doc_menu, "Save As...", "win.save_as");
     g_menu_append_section(full_menu, NULL, G_MENU_MODEL(app_menu));
     g_menu_append_section(full_menu, NULL, G_MENU_MODEL(doc_menu));
     gtk_application_set_app_menu(GTK_APPLICATION(app), G_MENU_MODEL(full_menu));
