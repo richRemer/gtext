@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=GText
+Exec=gtext
+Terminal=false
+Type=Application
+Icon=accessories-text-editor
+Categories=GTK;Utility;
