@@ -16,12 +16,10 @@ static void gtext_app_init(GTextApp*);
 static void gtext_app_startup(GApplication*);
 static void gtext_app_activate(GApplication*);
 static void gtext_app_open(GApplication*, GFile*[], gint, const gchar*);
-static void new_activated(GSimpleAction*, GVariant*, gpointer);
-static void open_activated(GSimpleAction*, GVariant*, gpointer);
 
 static GActionEntry actions[] = {
-    {"new", new_activated, NULL, NULL, NULL},
-    {"open", open_activated, NULL, NULL, NULL},
+    {"new", gtext_app_action_new, NULL, NULL, NULL},
+    {"open", gtext_app_action_open, NULL, NULL, NULL},
     {"save", NULL, NULL, NULL, NULL},
     {"save_as", NULL, NULL, NULL, NULL},
 };
@@ -38,7 +36,11 @@ GTextApp* gtext_app_new(void) {
                         NULL);
 }
 
-static void open_activated(GSimpleAction* action, GVariant* param, gpointer app) {
+void gtext_app_action_new(GSimpleAction* action, GVariant* param, gpointer app) {
+    gtext_app_activate(G_APPLICATION(app));
+}
+
+void gtext_app_action_open(GSimpleAction* action, GVariant* param, gpointer app) {
     GtkWidget* dialog;
     gint result;
     GFile* file;
@@ -54,10 +56,6 @@ static void open_activated(GSimpleAction* action, GVariant* param, gpointer app)
     }
 
     gtk_widget_destroy(dialog);
-}
-
-static void new_activated(GSimpleAction* action, GVariant* param, gpointer app) {
-    gtext_app_activate(G_APPLICATION(app));
 }
 
 static void gtext_app_class_init(GTextAppClass* class) {
