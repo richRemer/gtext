@@ -6,6 +6,7 @@
 
 struct _GTextApp {
     GtkApplication parent;
+    GtkWidget* help_window;
 };
 
 G_DEFINE_TYPE(GTextApp, gtext_app, GTK_TYPE_APPLICATION);
@@ -37,9 +38,25 @@ GtkWidget* gtext_app_open_file(GTextApp* app, GFile* file) {
     return GTK_WIDGET(window);
 }
 
+GtkWidget* gtext_app_show_help_window(GTextApp* app) {
+    if (NULL == app->help_window) {
+        app->help_window = gtext_help_create_window();
+
+        // present after 'realize' event or window might be part off-screen
+        g_signal_connect(app->help_window, "realize",
+            G_CALLBACK(gtk_window_present), NULL);
+
+        gtk_widget_show_all(app->help_window);
+    } else {
+        // subsequent times, can just present directly
+        gtk_window_present(GTK_WINDOW(app->help_window));
+    }
+
+    return app->help_window;
+}
+
 static void gtext_app_action_help(GSimpleAction* action, GVariant* param, gpointer app) {
-    GtkWidget* window = gtext_help_create_window();
-    gtk_widget_show_all(window);
+    gtext_app_show_help_window(GTEXT_APP(app));
 }
 
 static void gtext_app_action_new(GSimpleAction* action, GVariant* param, gpointer app) {

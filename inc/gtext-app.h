@@ -10,5 +10,6 @@ GTextApp* gtext_app_new(void);
 GtkWidget* gtext_app_new_document(GTextApp*);
 GtkWidget* gtext_app_open_document(GTextApp*);
 GtkWidget* gtext_app_open_file(GTextApp*, GFile*);
+GtkWidget* gtext_app_show_help_window(GTextApp*);
 
 #endif

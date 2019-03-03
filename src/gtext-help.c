@@ -70,6 +70,8 @@ GtkWidget* gtext_help_create_window() {
         NULL);
     gtk_container_add(GTK_CONTAINER(window), section);
     gtk_widget_hide(gtk_window_get_titlebar(GTK_WINDOW(window)));
+    g_signal_connect(window, "delete-event",
+        G_CALLBACK(gtk_widget_hide_on_delete), NULL);
 
     return window;
 }
