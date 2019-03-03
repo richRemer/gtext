@@ -4,5 +4,6 @@
 #include <gtk/gtk.h>
 
 GFile* gtext_dialog_open();
+GFile* gtext_dialog_save_as(GtkWindow*);
 
 #endif

@@ -1,6 +1,7 @@
 #include "gtext-css.h"
 #include "gtext-res.h"
 #include "gtext-app-win.h"
+#include "gtext-dialog.h"
 
 struct _GTextAppWin {
     GtkApplicationWindow parent;
@@ -74,22 +75,12 @@ void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer 
 }
 
 void gtext_app_win_action_save_as(GSimpleAction* action, GVariant* param, gpointer window) {
-    GtkWidget* dialog;
-    gint result;
-    GFile* file;
+    GFile* file = gtext_dialog_save_as(GTK_WINDOW(window));
 
-    dialog = gtk_file_chooser_dialog_new(NULL, NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
-        "_Cancel", GTK_RESPONSE_CANCEL,
-        "_Save Copy", GTK_RESPONSE_ACCEPT,
-        NULL);
-
-    if (GTK_RESPONSE_ACCEPT == gtk_dialog_run(GTK_DIALOG(dialog))) {
-        file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+    if (file) {
         GTEXT_APP_WIN(window)->file = file;
         gtext_app_win_action_save(action, param, window);
     }
-
-    gtk_widget_destroy(dialog);
 }
 
 GFile* gtext_app_win_get_file(GTextAppWin* window) {
