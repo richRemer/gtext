@@ -1,5 +1,5 @@
 #include "gtext-app.h"
-#include "gtext-app-win.h"
+#include "gtext-doc-win.h"
 #include "gtext-dialog.h"
 #include "gtext-res.h"
 
@@ -17,7 +17,7 @@ GTextApp* gtext_app_new(void) {
 }
 
 GtkWidget* gtext_app_new_document(GTextApp* app) {
-    GTextAppWin* window = gtext_app_win_new(app);
+    GTextDocWin* window = gtext_doc_win_new(app);
     gtk_window_present(GTK_WINDOW(window));
     return GTK_WIDGET(window);
 }
@@ -31,7 +31,7 @@ GtkWidget* gtext_app_open_document(GTextApp* app) {
 }
 
 GtkWidget* gtext_app_open_file(GTextApp* app, GFile* file) {
-    GTextAppWin* window = gtext_app_win_new_with_file(app, file);
+    GTextDocWin* window = gtext_doc_win_new_with_file(app, file);
     gtk_window_present(GTK_WINDOW(window));
     return GTK_WIDGET(window);
 }

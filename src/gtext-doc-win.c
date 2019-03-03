@@ -1,9 +1,9 @@
 #include "gtext-css.h"
 #include "gtext-res.h"
-#include "gtext-app-win.h"
+#include "gtext-doc-win.h"
 #include "gtext-dialog.h"
 
-struct _GTextAppWin {
+struct _GTextDocWin {
     GtkApplicationWindow parent;
     GtkWidget* layout;
     GtkWidget* viewport;
@@ -11,17 +11,17 @@ struct _GTextAppWin {
     GFile* file;
 };
 
-G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
+G_DEFINE_TYPE (GTextDocWin, gtext_doc_win, GTK_TYPE_APPLICATION_WINDOW)
 
-GTextAppWin* gtext_app_win_new(GTextApp* app) {
-    return g_object_new(GTEXT_APP_WIN_TYPE,
+GTextDocWin* gtext_doc_win_new(GTextApp* app) {
+    return g_object_new(GTEXT_DOC_WIN_TYPE,
         "application", app,
         "show-menubar", FALSE,
         NULL);
 }
 
-GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
-    GTextAppWin* window = gtext_app_win_new(app);
+GTextDocWin* gtext_doc_win_new_with_file(GTextApp* app, GFile* file) {
+    GTextDocWin* window = gtext_doc_win_new(app);
     GtkTextBuffer* buffer;
     char* contents;
     gsize len;
@@ -36,11 +36,11 @@ GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
     return window;
 }
 
-GFile* gtext_app_win_get_file(GTextAppWin* window) {
+GFile* gtext_doc_win_get_file(GTextDocWin* window) {
     return window->file;
 }
 
-void gtext_app_win_save(GTextAppWin* window) {
+void gtext_doc_win_save(GTextDocWin* window) {
     GtkTextBuffer* buffer;
     GtkTextIter start;
     GtkTextIter end;
@@ -49,15 +49,15 @@ void gtext_app_win_save(GTextAppWin* window) {
     gchar* contents;
     int len;
 
-    if (NULL == (file = gtext_app_win_get_file(GTEXT_APP_WIN(window)))) {
-        return gtext_app_win_save_as(window);
+    if (NULL == (file = gtext_doc_win_get_file(GTEXT_DOC_WIN(window)))) {
+        return gtext_doc_win_save_as(window);
     }
 
     if (NULL == (out = g_file_replace(file, NULL, FALSE, 0, NULL, NULL))) {
         g_printerr("could not open file for writing\n");
     }
 
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(GTEXT_APP_WIN(window)->content));
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(GTEXT_DOC_WIN(window)->content));
     gtk_text_buffer_get_start_iter(buffer, &start);
     gtk_text_buffer_get_end_iter(buffer, &end);
 
@@ -70,29 +70,29 @@ void gtext_app_win_save(GTextAppWin* window) {
     g_free(contents);
 }
 
-void gtext_app_win_save_as(GTextAppWin* window) {
+void gtext_doc_win_save_as(GTextDocWin* window) {
     GFile* file = gtext_dialog_save_as(GTK_WINDOW(window));
 
     if (file) {
-        GTEXT_APP_WIN(window)->file = file;
-        gtext_app_win_save(window);
+        GTEXT_DOC_WIN(window)->file = file;
+        gtext_doc_win_save(window);
     }
 }
 
-static void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer window) {
-    gtext_app_win_save(GTEXT_APP_WIN(window));
+static void gtext_doc_win_action_save(GSimpleAction* action, GVariant* param, gpointer window) {
+    gtext_doc_win_save(GTEXT_DOC_WIN(window));
 }
 
-static void gtext_app_win_action_save_as(GSimpleAction* action, GVariant* param, gpointer window) {
-    gtext_app_win_save_as(GTEXT_APP_WIN(window));
+static void gtext_doc_win_action_save_as(GSimpleAction* action, GVariant* param, gpointer window) {
+    gtext_doc_win_save_as(GTEXT_DOC_WIN(window));
 }
 
 static GActionEntry actions[] = {
-    {"save", gtext_app_win_action_save, NULL, NULL, NULL},
-    {"save_as", gtext_app_win_action_save_as, NULL, NULL, NULL}
+    {"save", gtext_doc_win_action_save, NULL, NULL, NULL},
+    {"save_as", gtext_doc_win_action_save_as, NULL, NULL, NULL}
 };
 
-static void gtext_app_win_init(GTextAppWin* window) {
+static void gtext_doc_win_init(GTextDocWin* window) {
     window->content = gtk_text_view_new();
     gtk_text_view_set_monospace(GTK_TEXT_VIEW(window->content), TRUE);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(window->content), GTK_WRAP_WORD);
@@ -113,6 +113,6 @@ static void gtext_app_win_init(GTextAppWin* window) {
     gtk_widget_show_all(window->layout);
 }
 
-static void gtext_app_win_class_init(GTextAppWinClass* class) {
+static void gtext_doc_win_class_init(GTextDocWinClass* class) {
     // implements GObject interface
 }
