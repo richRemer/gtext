@@ -13,11 +13,6 @@ struct _GTextAppWin {
 
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
-static GActionEntry actions[] = {
-    {"save", gtext_app_win_action_save, NULL, NULL, NULL},
-    {"save_as", gtext_app_win_action_save_as, NULL, NULL, NULL}
-};
-
 GTextAppWin* gtext_app_win_new(GTextApp* app) {
     return g_object_new(GTEXT_APP_WIN_TYPE,
         "application", app,
@@ -41,7 +36,11 @@ GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
     return window;
 }
 
-void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer window) {
+GFile* gtext_app_win_get_file(GTextAppWin* window) {
+    return window->file;
+}
+
+void gtext_app_win_save(GTextAppWin* window) {
     GtkTextBuffer* buffer;
     GtkTextIter start;
     GtkTextIter end;
@@ -51,7 +50,7 @@ void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer 
     int len;
 
     if (NULL == (file = gtext_app_win_get_file(GTEXT_APP_WIN(window)))) {
-        return gtext_app_win_action_save_as(action, param, window);
+        return gtext_app_win_save_as(window);
     }
 
     if (NULL == (out = g_file_replace(file, NULL, FALSE, 0, NULL, NULL))) {
@@ -71,22 +70,27 @@ void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer 
     g_free(contents);
 }
 
-void gtext_app_win_action_save_as(GSimpleAction* action, GVariant* param, gpointer window) {
+void gtext_app_win_save_as(GTextAppWin* window) {
     GFile* file = gtext_dialog_save_as(GTK_WINDOW(window));
 
     if (file) {
         GTEXT_APP_WIN(window)->file = file;
-        gtext_app_win_action_save(action, param, window);
+        gtext_app_win_save(window);
     }
 }
 
-GFile* gtext_app_win_get_file(GTextAppWin* window) {
-    return window->file;
+static void gtext_app_win_action_save(GSimpleAction* action, GVariant* param, gpointer window) {
+    gtext_app_win_save(GTEXT_APP_WIN(window));
 }
 
-static void gtext_app_win_class_init(GTextAppWinClass* class) {
-
+static void gtext_app_win_action_save_as(GSimpleAction* action, GVariant* param, gpointer window) {
+    gtext_app_win_save_as(GTEXT_APP_WIN(window));
 }
+
+static GActionEntry actions[] = {
+    {"save", gtext_app_win_action_save, NULL, NULL, NULL},
+    {"save_as", gtext_app_win_action_save_as, NULL, NULL, NULL}
+};
 
 static void gtext_app_win_init(GTextAppWin* window) {
     window->content = gtk_text_view_new();
@@ -107,4 +111,8 @@ static void gtext_app_win_init(GTextAppWin* window) {
     gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
     gtk_container_add(GTK_CONTAINER(window), window->layout);
     gtk_widget_show_all(window->layout);
+}
+
+static void gtext_app_win_class_init(GTextAppWinClass* class) {
+    // implements GObject interface
 }

@@ -9,9 +9,40 @@ struct _GTextApp {
 
 G_DEFINE_TYPE(GTextApp, gtext_app, GTK_TYPE_APPLICATION);
 
-static void gtext_app_startup(GApplication*);
-static void gtext_app_activate(GApplication*);
-static void gtext_app_open(GApplication*, GFile*[], gint, const gchar*);
+GTextApp* gtext_app_new(void) {
+    return g_object_new(GTEXT_APP_TYPE,
+                        "application-id", "us.remer.gtext",
+                        "flags", G_APPLICATION_HANDLES_OPEN,
+                        NULL);
+}
+
+GtkWidget* gtext_app_new_document(GTextApp* app) {
+    GTextAppWin* window = gtext_app_win_new(app);
+    gtk_window_present(GTK_WINDOW(window));
+    return GTK_WIDGET(window);
+}
+
+GtkWidget* gtext_app_open_document(GTextApp* app) {
+    GFile* file;
+
+    if (NULL != (file = gtext_dialog_open())) {
+        return gtext_app_open_file(app, file);
+    }
+}
+
+GtkWidget* gtext_app_open_file(GTextApp* app, GFile* file) {
+    GTextAppWin* window = gtext_app_win_new_with_file(app, file);
+    gtk_window_present(GTK_WINDOW(window));
+    return GTK_WIDGET(window);
+}
+
+static void gtext_app_action_new(GSimpleAction* action, GVariant* param, gpointer app) {
+    gtext_app_new_document(GTEXT_APP(app));
+}
+
+static void gtext_app_action_open(GSimpleAction* action, GVariant* param, gpointer app) {
+    gtext_app_open_document(GTEXT_APP(app));
+}
 
 static GActionEntry actions[] = {
     {"new", gtext_app_action_new, NULL, NULL, NULL},
@@ -24,32 +55,6 @@ static const gchar* new_accels[2] = {"<Ctrl>N", NULL};
 static const gchar* open_accels[2] = {"<Ctrl>O", NULL};
 static const gchar* save_accels[2] = {"<Ctrl>S", NULL};
 static const gchar* save_as_accels[2] = {"<Ctrl><Shift>S", NULL};
-
-GTextApp* gtext_app_new(void) {
-    return g_object_new(GTEXT_APP_TYPE,
-                        "application-id", "us.remer.gtext",
-                        "flags", G_APPLICATION_HANDLES_OPEN,
-                        NULL);
-}
-
-void gtext_app_action_new(GSimpleAction* action, GVariant* param, gpointer app) {
-    gtext_app_activate(G_APPLICATION(app));
-}
-
-void gtext_app_action_open(GSimpleAction* action, GVariant* param, gpointer app) {
-    GFile* file = gtext_dialog_open();
-    if (file) gtext_app_open(G_APPLICATION(app), &file, 1, NULL);
-}
-
-static void gtext_app_class_init(GTextAppClass* class) {
-    G_APPLICATION_CLASS(class)->startup = gtext_app_startup;
-    G_APPLICATION_CLASS(class)->activate = gtext_app_activate;
-    G_APPLICATION_CLASS(class)->open = gtext_app_open;
-}
-
-static void gtext_app_init(GTextApp* app) {
-    // implements GApplication interface
-}
 
 static void gtext_app_startup(GApplication* app) {
     GMenu* menu;
@@ -77,15 +82,21 @@ static void gtext_app_startup(GApplication* app) {
 }
 
 static void gtext_app_activate(GApplication* app) {
-    GTextAppWin* window = gtext_app_win_new(GTEXT_APP(app));
-    gtk_window_present(GTK_WINDOW(window));
+    gtext_app_action_new(NULL, NULL, app);
 }
 
 static void gtext_app_open(GApplication* app, GFile* files[], gint nfiles, const gchar* hint) {
-    GTextAppWin* window;
-
     for (int i = 0; i < nfiles; i++) {
-        window = gtext_app_win_new_with_file(GTEXT_APP(app), files[i]);
-        gtk_window_present(GTK_WINDOW(window));
+        gtext_app_open_file(GTEXT_APP(app), files[i]);
     }
+}
+
+static void gtext_app_init(GTextApp* app) {
+    // implements GApplication interface
+}
+
+static void gtext_app_class_init(GTextAppClass* class) {
+    G_APPLICATION_CLASS(class)->startup = gtext_app_startup;
+    G_APPLICATION_CLASS(class)->activate = gtext_app_activate;
+    G_APPLICATION_CLASS(class)->open = gtext_app_open;
 }

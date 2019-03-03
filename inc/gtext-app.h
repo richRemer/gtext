@@ -7,7 +7,8 @@
 G_DECLARE_FINAL_TYPE (GTextApp, gtext_app, GTEXT, APP, GtkApplication)
 
 GTextApp* gtext_app_new(void);
-void gtext_app_action_new(GSimpleAction*, GVariant*, gpointer);
-void gtext_app_action_open(GSimpleAction*, GVariant*, gpointer);
+GtkWidget* gtext_app_new_document(GTextApp*);
+GtkWidget* gtext_app_open_document(GTextApp*);
+GtkWidget* gtext_app_open_file(GTextApp*, GFile*);
 
 #endif
