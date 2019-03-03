@@ -16,7 +16,6 @@ static void gtext_app_init(GTextApp*);
 static void gtext_app_startup(GApplication*);
 static void gtext_app_activate(GApplication*);
 static void gtext_app_open(GApplication*, GFile*[], gint, const gchar*);
-static void gtext_app_build_menu(GTextApp*);
 static void new_activated(GSimpleAction*, GVariant*, gpointer);
 static void open_activated(GSimpleAction*, GVariant*, gpointer);
 
@@ -72,6 +71,8 @@ static void gtext_app_init(GTextApp* app) {
 }
 
 static void gtext_app_startup(GApplication* app) {
+    GMenu* menu;
+
     // call parent implementation
     G_APPLICATION_CLASS(gtext_app_parent_class)->startup(app);
 
@@ -85,10 +86,12 @@ static void gtext_app_startup(GApplication* app) {
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save", save_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save_as", save_as_accels);
 
-    gtext_app_build_menu(GTEXT_APP(app));
+    menu = gtext_res_create_menu();
+    gtk_application_set_app_menu(GTK_APPLICATION(app), G_MENU_MODEL(menu));
+    g_object_unref(menu);
 
     // setup fallback icon for all app windows
-    GList* app_icon = gtext_load_icon_list("accessories-text-editor");
+    GList* app_icon = gtext_res_load_icon_list("accessories-text-editor");
     gtk_window_set_default_icon_list(app_icon);
 }
 
@@ -104,26 +107,4 @@ static void gtext_app_open(GApplication* app, GFile* files[], gint nfiles, const
         window = gtext_app_win_new_with_file(GTEXT_APP(app), files[i]);
         gtk_window_present(GTK_WINDOW(window));
     }
-}
-
-static void gtext_app_build_menu(GTextApp* app) {
-    GMenu* full_menu;
-    GMenu* app_menu;
-    GMenu* doc_menu;
-
-    full_menu = g_menu_new();
-    app_menu = g_menu_new();
-    doc_menu = g_menu_new();
-
-    g_menu_append(app_menu, "New", "app.new");
-    g_menu_append(app_menu, "Open...", "app.open");
-    g_menu_append(doc_menu, "Save", "win.save");
-    g_menu_append(doc_menu, "Save As...", "win.save_as");
-    g_menu_append_section(full_menu, NULL, G_MENU_MODEL(app_menu));
-    g_menu_append_section(full_menu, NULL, G_MENU_MODEL(doc_menu));
-    gtk_application_set_app_menu(GTK_APPLICATION(app), G_MENU_MODEL(full_menu));
-
-    g_object_unref(doc_menu);
-    g_object_unref(app_menu);
-    g_object_unref(full_menu);
 }

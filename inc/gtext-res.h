@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 
-GList* gtext_load_icon_list(const char*);
+GMenu* gtext_res_create_menu();
+GList* gtext_res_load_icon_list(const char*);
 
 #endif
