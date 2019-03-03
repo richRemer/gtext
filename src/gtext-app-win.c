@@ -13,9 +13,6 @@ struct _GTextAppWin {
 
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
-static void gtext_app_win_class_init(GTextAppWinClass*);
-static void gtext_app_win_init(GTextAppWin*);
-
 static GActionEntry actions[] = {
     {"save", gtext_app_win_action_save, NULL, NULL, NULL},
     {"save_as", gtext_app_win_action_save_as, NULL, NULL, NULL}

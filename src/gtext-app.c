@@ -12,8 +12,6 @@ struct _GTextApp {
 
 G_DEFINE_TYPE(GTextApp, gtext_app, GTK_TYPE_APPLICATION);
 
-static void gtext_app_class_init(GTextAppClass*);
-static void gtext_app_init(GTextApp*);
 static void gtext_app_startup(GApplication*);
 static void gtext_app_activate(GApplication*);
 static void gtext_app_open(GApplication*, GFile*[], gint, const gchar*);
