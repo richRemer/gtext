@@ -1,6 +1,7 @@
 #include "gtext-app.h"
 #include "gtext-doc-win.h"
 #include "gtext-dialog.h"
+#include "gtext-help.h"
 #include "gtext-res.h"
 
 struct _GTextApp {
@@ -36,6 +37,11 @@ GtkWidget* gtext_app_open_file(GTextApp* app, GFile* file) {
     return GTK_WIDGET(window);
 }
 
+static void gtext_app_action_help(GSimpleAction* action, GVariant* param, gpointer app) {
+    GtkWidget* window = gtext_help_create_window();
+    gtk_widget_show_all(window);
+}
+
 static void gtext_app_action_new(GSimpleAction* action, GVariant* param, gpointer app) {
     gtext_app_new_document(GTEXT_APP(app));
 }
@@ -45,12 +51,14 @@ static void gtext_app_action_open(GSimpleAction* action, GVariant* param, gpoint
 }
 
 static GActionEntry actions[] = {
+    {"help", gtext_app_action_help, NULL, NULL, NULL},
     {"new", gtext_app_action_new, NULL, NULL, NULL},
     {"open", gtext_app_action_open, NULL, NULL, NULL},
     {"save", NULL, NULL, NULL, NULL},
     {"save_as", NULL, NULL, NULL, NULL},
 };
 
+static const gchar* help_accels[2] = {"F1", NULL};
 static const gchar* new_accels[2] = {"<Ctrl>N", NULL};
 static const gchar* open_accels[2] = {"<Ctrl>O", NULL};
 static const gchar* save_accels[2] = {"<Ctrl>S", NULL};
@@ -67,6 +75,7 @@ static void gtext_app_startup(GApplication* app) {
     g_action_map_add_action_entries(G_ACTION_MAP(app),
         actions, G_N_ELEMENTS(actions), app);
 
+    gtk_application_set_accels_for_action(GTK_APPLICATION(app), "app.help", help_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "app.new", new_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "app.open", open_accels);
     gtk_application_set_accels_for_action(GTK_APPLICATION(app), "win.save", save_accels);
