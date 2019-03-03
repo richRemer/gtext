@@ -22,22 +22,33 @@ GTextDocWin* gtext_doc_win_new(GTextApp* app) {
 
 GTextDocWin* gtext_doc_win_new_with_file(GTextApp* app, GFile* file) {
     GTextDocWin* window = gtext_doc_win_new(app);
-    GtkTextBuffer* buffer;
-    char* contents;
-    gsize len;
 
-    if (g_file_load_contents(file, NULL, &contents, &len, NULL, NULL)) {
-        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->content));
-        gtk_text_buffer_set_text(buffer, contents, len);
-        g_object_ref(window->file = file);
-        g_free(contents);
-    }
+    gtext_doc_win_set_file(window, file);
+    gtext_doc_win_reload(window);
 
     return window;
 }
 
 GFile* gtext_doc_win_get_file(GTextDocWin* window) {
     return window->file;
+}
+
+void gtext_doc_win_reload(GTextDocWin* window) {
+    GFile* file = gtext_doc_win_get_file(window);
+    GtkTextBuffer* buffer;
+    char* contents;
+    gsize len;
+
+    if (NULL == file) {
+        g_printerr("no file to reload\n");
+        return;
+    }
+
+    if (g_file_load_contents(file, NULL, &contents, &len, NULL, NULL)) {
+        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->content));
+        gtk_text_buffer_set_text(buffer, contents, len);
+        g_free(contents);
+    }
 }
 
 void gtext_doc_win_save(GTextDocWin* window) {
@@ -74,9 +85,26 @@ void gtext_doc_win_save_as(GTextDocWin* window) {
     GFile* file = gtext_dialog_save_as(GTK_WINDOW(window));
 
     if (file) {
-        GTEXT_DOC_WIN(window)->file = file;
+        gtext_doc_win_set_file(window, file);
         gtext_doc_win_save(window);
     }
+}
+
+void gtext_doc_win_set_file(GTextDocWin* window, GFile* file) {
+    char* basename;
+
+    if (window->file == file) {
+        return;
+    } else if (window->file) {
+        g_object_unref(window->file);
+    }
+
+    basename = g_file_get_basename(file);
+    gtk_window_set_title(GTK_WINDOW(window), basename);
+    window->file = file;
+
+    g_object_ref(file);
+    g_free(basename);
 }
 
 static void gtext_doc_win_action_save(GSimpleAction* action, GVariant* param, gpointer window) {
