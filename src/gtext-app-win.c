@@ -12,6 +12,8 @@ struct _GTextAppWin {
 
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
+static void gtext_app_win_class_init(GTextAppWinClass*);
+static void gtext_app_win_init(GTextAppWin*);
 static void save_activated(GSimpleAction*, GVariant*, gpointer);
 static void save_as_activated(GSimpleAction*, GVariant*, gpointer);
 
@@ -19,31 +21,6 @@ static GActionEntry actions[] = {
     {"save", save_activated, NULL, NULL, NULL},
     {"save_as", save_as_activated, NULL, NULL, NULL}
 };
-
-static void gtext_app_win_init(GTextAppWin* window) {
-    window->content = gtk_text_view_new();
-    gtk_text_view_set_monospace(GTK_TEXT_VIEW(window->content), TRUE);
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(window->content), GTK_WRAP_WORD);
-    gtext_css_style_widget(window->content, "content");
-
-    window->viewport = gtk_scrolled_window_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER(window->viewport), window->content);
-
-    window->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_pack_start(GTK_BOX(window->layout), window->viewport, TRUE, TRUE, 0);
-
-    g_action_map_add_action_entries(G_ACTION_MAP(window), actions,
-        G_N_ELEMENTS(actions), window);
-
-    gtk_window_set_title(GTK_WINDOW(window), "Editor");
-    gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
-    gtk_container_add(GTK_CONTAINER(window), window->layout);
-    gtk_widget_show_all(window->layout);
-}
-
-static void gtext_app_win_class_init(GTextAppWinClass* class) {
-
-}
 
 GTextAppWin* gtext_app_win_new(GTextApp* app) {
     return g_object_new(GTEXT_APP_WIN_TYPE,
@@ -66,10 +43,6 @@ GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
     }
 
     return window;
-}
-
-GFile* gtext_app_win_get_file(GTextAppWin* window) {
-    return window->file;
 }
 
 static void save_activated(GSimpleAction* action, GVariant* param, gpointer data) {
@@ -121,4 +94,33 @@ static void save_as_activated(GSimpleAction* action, GVariant* param, gpointer d
     }
 
     gtk_widget_destroy(dialog);
+}
+
+static void gtext_app_win_class_init(GTextAppWinClass* class) {
+
+}
+
+static void gtext_app_win_init(GTextAppWin* window) {
+    window->content = gtk_text_view_new();
+    gtk_text_view_set_monospace(GTK_TEXT_VIEW(window->content), TRUE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(window->content), GTK_WRAP_WORD);
+    gtext_css_style_widget(window->content, "content");
+
+    window->viewport = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(window->viewport), window->content);
+
+    window->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start(GTK_BOX(window->layout), window->viewport, TRUE, TRUE, 0);
+
+    g_action_map_add_action_entries(G_ACTION_MAP(window), actions,
+        G_N_ELEMENTS(actions), window);
+
+    gtk_window_set_title(GTK_WINDOW(window), "Editor");
+    gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
+    gtk_container_add(GTK_CONTAINER(window), window->layout);
+    gtk_widget_show_all(window->layout);
+}
+
+GFile* gtext_app_win_get_file(GTextAppWin* window) {
+    return window->file;
 }

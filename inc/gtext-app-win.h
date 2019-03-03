@@ -9,5 +9,6 @@ G_DECLARE_FINAL_TYPE (GTextAppWin, gtext_app_win, GTEXT, APP_WIN, GtkApplication
 
 GTextAppWin* gtext_app_win_new(GTextApp*);
 GTextAppWin* gtext_app_win_new_with_file(GTextApp*, GFile*);
+GFile* gtext_app_win_get_file(GTextAppWin*);
 
 #endif
