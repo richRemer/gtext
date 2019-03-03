@@ -61,7 +61,7 @@ GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
     if (g_file_load_contents(file, NULL, &contents, &len, NULL, NULL)) {
         buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->content));
         gtk_text_buffer_set_text(buffer, contents, len);
-        window->file = file;
+        g_object_ref(window->file = file);
         g_free(contents);
     }
 
