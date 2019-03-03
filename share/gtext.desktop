@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=GText
-Exec=gtext
+TryExec=gtext
+Exec=gtext %U
 Terminal=false
 Type=Application
 Icon=accessories-text-editor
