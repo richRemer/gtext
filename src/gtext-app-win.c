@@ -12,6 +12,12 @@ struct _GTextAppWin {
 
 G_DEFINE_TYPE (GTextAppWin, gtext_app_win, GTK_TYPE_APPLICATION_WINDOW)
 
+static void save_activated(GSimpleAction*, GVariant*, gpointer);
+
+static GActionEntry actions[] = {
+    {"save", save_activated, NULL, NULL, NULL}
+};
+
 static void gtext_app_win_init(GTextAppWin* window) {
     window->content = gtk_text_view_new();
     gtk_text_view_set_monospace(GTK_TEXT_VIEW(window->content), TRUE);
@@ -23,6 +29,9 @@ static void gtext_app_win_init(GTextAppWin* window) {
 
     window->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start(GTK_BOX(window->layout), window->viewport, TRUE, TRUE, 0);
+
+    g_action_map_add_action_entries(G_ACTION_MAP(window), actions,
+        G_N_ELEMENTS(actions), window);
 
     gtk_window_set_title(GTK_WINDOW(window), "Editor");
     gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
@@ -59,4 +68,36 @@ GTextAppWin* gtext_app_win_new_with_file(GTextApp* app, GFile* file) {
 
 GFile* gtext_app_win_get_file(GTextAppWin* window) {
     return window->file;
+}
+
+static void save_activated(GSimpleAction* action, GVariant* param, gpointer data) {
+    GTextAppWin* window = GTEXT_APP_WIN(data);
+    GtkTextBuffer* buffer;
+    GtkTextIter start;
+    GtkTextIter end;
+    GFile* file;
+    GFileOutputStream* out;
+    gchar* contents;
+    int len;
+
+    if (NULL == (file = gtext_app_win_get_file(window))) {
+        g_printerr("file unknown\n");
+        return;
+    }
+
+    if (NULL == (out = g_file_replace(file, NULL, FALSE, 0, NULL, NULL))) {
+        g_printerr("could not open file for writing\n");
+    }
+
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->content));
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+
+    contents = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+    len = strlen(contents);
+    if (len && contents[len-1] != '\n') contents[len++] = '\n';
+
+    g_output_stream_write(G_OUTPUT_STREAM(out), contents, len, NULL, NULL);
+    g_output_stream_close(G_OUTPUT_STREAM(out), NULL, NULL);
+    g_free(contents);
 }
