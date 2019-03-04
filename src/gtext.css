@@ -1,9 +1,12 @@
 textview.content {
+	background-color: rgb(242,241,240);
+	color: rgb(76,76,76);
+	font-family: "Ubuntu Mono", monospace;
+	font-size: x-large;
 	padding: 5px;
-	font-size: large;
 }
 
-.keycap {
+label.keycap {
 	background-color: #fff;
 	border: 1px solid #ddd;
 	padding: 5px 10px;
